@@ -1,145 +1,25 @@
 /*********************************************************
  * The publicly exposed MathQuill API.
  ********************************************************/
-
-type KIND_OF_MQ = 'StaticMath' | 'MathField' | 'InnerMathField' | 'TextField';
-
-/** MathQuill instance fields/methods that are internal, not exposed in the public type defs. */
-interface InternalMathQuillInstance {
-  __controller: Controller;
-  __options: CursorOptions;
-  id: number;
-  data: { [key: string]: any };
-  mathquillify(classNames: string): void;
-  __mathquillify(
-    opts: ConfigOptions,
-    _interfaceVersion: number
-  ): IBaseMathQuill;
-}
-
-interface IBaseMathQuill extends BaseMathQuill, InternalMathQuillInstance {}
-
-interface IBaseMathQuillClass {
-  new (ctrlr: Controller): IBaseMathQuill;
-  RootBlock: typeof MathBlock;
-}
-
-interface IEditableField extends EditableMathQuill, InternalMathQuillInstance {}
-
-interface IEditableFieldClass {
-  new (ctrlr: Controller): IEditableField;
-  RootBlock: typeof MathBlock;
-}
-
-interface APIClasses {
-  StaticMath?: IBaseMathQuillClass;
-  MathField?: IEditableFieldClass;
-  InnerMathField?: IEditableFieldClass;
-  TextField?: IEditableFieldClass;
-  AbstractMathQuill: IBaseMathQuillClass;
-  EditableField: IEditableFieldClass;
-}
-
-type APIClassBuilders = {
-  StaticMath?: (APIClasses: APIClasses) => IBaseMathQuillClass;
-  MathField?: (APIClasses: APIClasses) => IEditableFieldClass;
-  InnerMathField?: (APIClasses: APIClasses) => IEditableFieldClass;
-  TextField?: (APIClasses: APIClasses) => IEditableFieldClass;
-};
-
-var API: APIClassBuilders = {};
-
-var EMBEDS: Record<string, (data: EmbedOptionsData) => EmbedOptions> = {};
-
-const processedOptions = {
-  handlers: true,
-  autoCommands: true,
-  quietEmptyDelimiters: true,
-  autoParenthesizedFunctions: true,
-  autoOperatorNames: true,
-  infixOperatorNames: true,
-  prefixOperatorNames: true,
-  leftRightIntoCmdGoes: true,
-  maxDepth: true,
-  interpretTildeAsSim: true,
-  disableAutoSubstitutionInSubscripts: true
-};
-type ProcessedOption = keyof typeof processedOptions;
-
-/** Map of functions transforming client-provided config options to the internal representation (i.e. property of the Options class) */
-type OptionProcessors = Partial<{
-  [K in ProcessedOption]: (optionValue: ConfigOptions[K]) => CursorOptions[K];
-}>;
-
-const baseOptionProcessors: OptionProcessors = {};
-
-type AutoDict = {
-  _maxLength?: number;
-  [id: string]: any;
-};
-
-type SubstituteKeyboardEvents = (
-  el: $,
-  controller: Controller
-) => {
-  select: (text: string) => void;
-};
-
-class Options {
-  constructor(public version: 1 | 2 | 3) {}
-
-  ignoreNextMousedown: (_el: MouseEvent) => boolean;
-  substituteTextarea: () => HTMLElement;
-  /** Only used in interface versions 1 and 2. */
-  substituteKeyboardEvents: SubstituteKeyboardEvents;
-
-  restrictMismatchedBrackets?: boolean | 'none';
-  typingSlashCreatesNewFraction?: boolean;
-  charsThatBreakOutOfSupSub: string;
-  sumStartsWithNEquals?: boolean;
-  autoSubscriptNumerals?: boolean;
-  supSubsRequireOperand?: boolean;
-  spaceBehavesLikeTab?: boolean;
-  typingAsteriskWritesTimesSymbol?: boolean;
-  typingSlashWritesDivisionSymbol: boolean;
-  typingPercentWritesPercentOf?: boolean;
-  resetCursorOnBlur?: boolean | undefined;
-  leftRightIntoCmdGoes?: 'up' | 'down';
-  enableDigitGrouping?: boolean;
-  tripleDotsAreEllipsis?: boolean;
-  tabindex?: number;
-  mouseEvents?: boolean;
-  maxDepth?: number;
-  disableCopyPaste?: boolean;
-  statelessClipboard?: boolean;
-  logAriaAlerts?: boolean;
-  onPaste?: () => void;
-  onCut?: () => void;
-  overrideTypedText?: (text: string) => void;
-  overrideKeystroke: (key: string, event: KeyboardEvent) => void;
-  autoOperatorNames: AutoDict;
-  infixOperatorNames: { [name in string]?: true };
-  prefixOperatorNames: { [name in string]?: true };
-  autoCommands: AutoDict;
-  autoParenthesizedFunctions: AutoDict;
-  quietEmptyDelimiters: { [id: string]: any };
-  disableAutoSubstitutionInSubscripts?:
-    | boolean
-    | { except: { [name in string]?: true } };
-  interpretTildeAsSim: boolean;
-  handlers?: {
-    fns: HandlerOptions;
-    APIClasses: APIClasses;
-  };
-  scrollAnimationDuration?: number;
-
-  jQuery: $ | undefined;
-  assertJquery() {
-    pray('Interface versions > 2 do not depend on JQuery', this.version <= 2);
-    pray('JQuery is set for interface v < 3', this.jQuery);
-    return this.jQuery;
-  }
-}
+import { Direction, L, pray, R } from './utils';
+import './commands/math';
+import { baseOptionProcessors, OptionProcessors } from './services/baseOptionProcessors';
+import {
+  API,
+  APIClasses,
+  EMBEDS,
+  IBaseMathQuill,
+  IBaseMathQuillClass,
+  IEditableField,
+  IEditableFieldClass
+} from './services/apiClass';
+import { Options } from './services/options';
+import { MathBlock } from './commands/math';
+import { LatexCmds, NodeBase } from './tree';
+import { domFrag } from './domFragment';
+import { Controller, defaultSubstituteKeyboardEvents } from './services/textarea';
+import { EmbedNode } from './commands/math/commands';
+import { MQNode } from './services/keystroke';
 
 class Progenote {}
 
@@ -352,7 +232,7 @@ function getInterface(v: number): MathQuill.v3.API | MathQuill.v1.API {
         .replace(/ class=(""|(?= |>))/g, '');
     }
     reflow() {
-      this.__controller.root.postOrder(function (node) {
+      this.__controller.root.postOrder(function (node: MQNode) {
         node.reflow();
       });
       return this;
@@ -599,40 +479,7 @@ function getInterface(v: number): MathQuill.v3.API | MathQuill.v1.API {
 }
 
 MathQuill.noConflict = function () {
-  window.MathQuill = origMathQuill;
   return MathQuill;
 };
-var origMathQuill = window.MathQuill;
-window.MathQuill = MathQuill;
 
-function RootBlockMixin(_: RootBlockMixinInput) {
-  _.moveOutOf = function (dir: Direction) {
-    pray('controller is defined', this.controller);
-    this.controller.handle('moveOutOf', dir);
-  };
-  _.deleteOutOf = function (dir: Direction) {
-    pray('controller is defined', this.controller);
-    this.controller.handle('deleteOutOf', dir);
-  };
-  _.selectOutOf = function (dir: Direction) {
-    pray('controller is defined', this.controller);
-    this.controller.handle('selectOutOf', dir);
-  };
-  _.upOutOf = function () {
-    pray('controller is defined', this.controller);
-    this.controller.handle('upOutOf');
-    return undefined;
-  };
-  _.downOutOf = function () {
-    pray('controller is defined', this.controller);
-    this.controller.handle('downOutOf');
-    return undefined;
-  };
-
-  _.reflow = function () {
-    pray('controller is defined', this.controller);
-    this.controller.handle('reflow');
-    this.controller.handle('edited');
-    this.controller.handle('edit');
-  };
-}
+export default MathQuill;

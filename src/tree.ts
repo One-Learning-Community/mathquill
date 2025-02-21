@@ -6,8 +6,17 @@
  * of the tree.
  ************************************************/
 
+import { L, R, pray, prayDirection, Direction } from './utils';
+import { MQNode } from './services/keystroke';
+import { MathBlock, MathCommand } from './commands/math';
+import { DOMFragment, domFrag } from './domFragment';
+import { TextBlock } from './commands/text';
+import { Cursor, MQSelection } from './cursor';
+import { SupSub } from './commands/math/commands';
+import { Letter } from './commands/math/basicSymbols';
+
 /** A cursor-like location in an mq node tree. */
-class Point {
+export class Point {
   /** The node to the left of this point (or 0 for the position before a first child) */
   [L]: NodeRef;
   /** The node to the right of this point (or 0 for the position after a last child) */
@@ -74,17 +83,17 @@ function foldNodes<T>(
   return fold;
 }
 
-type ElementTrackingNode = {
+export type ElementTrackingNode = {
   mqBlockNode?: NodeBase;
   mqCmdNode?: NodeBase;
 };
 
-type Ends<T> = {
+export type Ends<T> = {
   readonly [L]: T;
   readonly [R]: T;
 };
 
-class NodeBase {
+export class NodeBase {
   static idCounter = 0;
   static uniqueNodeId() {
     return (NodeBase.idCounter += 1);
@@ -436,7 +445,7 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
  * DocumentFragment, whose contents must be detached from the visible tree
  * and have their 'parent' pointers set to the DocumentFragment).
  */
-class Fragment {
+export class Fragment {
   /**
    * The (doubly-linked) list of nodes contained in this fragment.
    *
@@ -647,9 +656,9 @@ class Fragment {
  *
  * (Commands are all subclasses of Node.)
  */
-var LatexCmds: LatexCmds = {};
-var CharCmds: CharCmds = {};
+export const LatexCmds: LatexCmds = {};
+export const CharCmds: CharCmds = {};
 
-function isMQNodeClass(cmd: any): cmd is typeof MQNode {
+export function isMQNodeClass(cmd: any): cmd is typeof MQNode {
   return cmd && cmd.prototype instanceof MQNode;
 }

@@ -1,3 +1,8 @@
+import { Options } from './options';
+import { ControllerBase } from '../controller';
+import { NodeBase } from '../tree';
+import { Controller_latex } from './latex';
+
 /********************************************************
  * Deals with mouse events for clicking, drag-to-select
  *******************************************************/
@@ -30,7 +35,7 @@ var cancelSelectionOnEdit:
   });
 })();
 
-class Controller_mouse extends Controller_latex {
+export class Controller_mouse extends Controller_latex {
   private handleMouseDown = (e: MouseEvent) => {
     const rootElement = closest(
       e.target as HTMLElement | null,

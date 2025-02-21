@@ -3,14 +3,22 @@
  * interaction with the typist.
  ****************************************/
 
+import { Fragment, NodeBase } from '../tree';
+import { ControllerBase } from '../controller';
+import { L, pray, prayDirection, R, Direction } from '../utils';
+import { baseOptionProcessors } from './baseOptionProcessors';
+import { Controller_focusBlur } from './focusBlur';
+import { Controller } from './textarea';
+import { Anticursor, Cursor } from '../cursor';
+
 /**
  * Only one incremental selection may be open at a time. Track whether
  * an incremental selection is open to help enforce this invariant.
  */
 var INCREMENTAL_SELECTION_OPEN = false;
 
-class MQNode extends NodeBase {
-  keystroke(key: string, e: KeyboardEvent | undefined, ctrlr: Controller) {
+export class MQNode extends NodeBase {
+  keystroke(key: string, e: KeyboardEvent | undefined, ctrlr: Controller|MQNode|Controller_keystroke) {
     var cursor = ctrlr.cursor;
 
     switch (key) {
@@ -254,7 +262,7 @@ ControllerBase.onNotify(function (cursor: Cursor, e: ControllerEvent) {
   if (e !== 'select') cursor.endSelection();
 });
 
-class Controller_keystroke extends Controller_focusBlur {
+export class Controller_keystroke extends Controller_focusBlur {
   keystroke(key: string, evt?: KeyboardEvent) {
     this.cursor.parent.keystroke(key, evt, this.getControllerSelf());
   }
@@ -402,7 +410,7 @@ class Controller_keystroke extends Controller_focusBlur {
     const cursorR = cursor[R] as MQNode;
     if (cursorL.siblingDeleted) cursorL.siblingDeleted(cursor.options, R);
     if (cursorR.siblingDeleted) cursorR.siblingDeleted(cursor.options, L);
-    cursor.parent.bubble(function (node) {
+    cursor.parent.bubble(function (node: MQNode) {
       (node as MQNode).reflow();
       return undefined;
     });

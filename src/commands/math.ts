@@ -2,6 +2,18 @@
  * Abstract classes of math blocks and commands.
  ************************************************/
 
+import { pray, L, R, Direction, noop } from '../utils';
+import { MQNode } from '../services/keystroke';
+import { Options } from '../services/options';
+import { API, APIClasses } from '../services/apiClass';
+import RootBlockMixin from '../services/rootBlockMixin';
+import { CharCmds, Ends, Fragment, LatexCmds, NodeBase } from '../tree';
+import { Anticursor, Cursor, MQSelection } from '../cursor';
+import { latexMathParser } from '../services/latex';
+import { Controller } from '../services/textarea';
+import { Digit, Letter } from './math/basicSymbols';
+import { domFrag } from '../domFragment';
+
 /**
  * Math tree node base class.
  * Some math-tree-specific extensions to MQNode.
@@ -77,7 +89,7 @@ class MathElement extends MQNode {
   }
 }
 
-class DOMView {
+export class DOMView {
   constructor(
     public readonly childCount: number,
     public readonly render: (blocks: MathBlock[]) => Element
@@ -88,7 +100,7 @@ class DOMView {
  * Commands and operators, like subscripts, exponents, or fractions.
  * Descendant commands are organized into blocks.
  */
-class MathCommand extends MathElement {
+export class MathCommand extends MathElement {
   replacedFragment: Fragment | undefined;
   protected domView: DOMView;
   protected ends: Ends<MQNode>;
@@ -339,7 +351,7 @@ class MathCommand extends MathElement {
 /**
  * Lightweight command without blocks or children.
  */
-class MQSymbol extends MathCommand {
+export class MQSymbol extends MathCommand {
   constructor(
     ctrlSeq?: string,
     html?: HTMLElement,
@@ -419,12 +431,12 @@ class MQSymbol extends MathCommand {
     return true;
   }
 }
-class VanillaSymbol extends MQSymbol {
+export class VanillaSymbol extends MQSymbol {
   constructor(ch: string, html?: ChildNode, mathspeak?: string) {
     super(ch, h('span', {}, [html || h.text(ch)]), undefined, mathspeak);
   }
 }
-function bindVanillaSymbol(
+export function bindVanillaSymbol(
   ch: string,
   htmlEntity?: string,
   mathspeak?: string
@@ -437,7 +449,7 @@ function bindVanillaSymbol(
     );
 }
 
-class BinaryOperator extends MQSymbol {
+export class BinaryOperator extends MQSymbol {
   constructor(
     ctrlSeq?: string,
     html?: ChildNode,
@@ -469,7 +481,7 @@ class BinaryOperator extends MQSymbol {
     return true;
   }
 }
-function bindBinaryOperator(
+export function bindBinaryOperator(
   ctrlSeq?: string,
   htmlEntity?: string,
   text?: string,
@@ -489,7 +501,7 @@ function bindBinaryOperator(
  * symbols and operators that descend (in the Math DOM tree) from
  * ancestor operators.
  */
-class MathBlock extends MathElement {
+export class MathBlock extends MathElement {
   controller?: Controller;
 
   join(methodName: JoinMethod) {
@@ -749,7 +761,7 @@ API.StaticMath = function (APIClasses: APIClasses) {
   };
 };
 
-class RootMathBlock extends MathBlock {}
+export class RootMathBlock extends MathBlock {}
 RootBlockMixin(RootMathBlock.prototype); // adds methods to RootMathBlock
 
 API.MathField = function (APIClasses: APIClasses) {

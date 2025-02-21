@@ -1,6 +1,28 @@
 /***************************
  * Commands and Operators.
  **************************/
+
+import { Direction, L, noop, pray, R } from '../../utils';
+import { DOMView, MathCommand, MathBlock, MQSymbol } from '../math';
+import { Ends, LatexCmds, CharCmds, NodeBase, Point, Fragment } from '../../tree';
+import { Options } from '../../services/options';
+import { MQNode } from '../../services/keystroke';
+import { domFrag, DOMFragment } from '../../domFragment';
+import { Digit, DigitGroupingChar, Equality, Letter, nodeEndsBinaryOperator } from './basicSymbols';
+import { Anticursor, Cursor } from '../../cursor';
+import { latexMathParser } from '../../services/latex';
+import {
+  U_DOT_ABOVE,
+  U_INTEGRAL,
+  U_NARY_COPRODUCT,
+  U_NARY_PRODUCT,
+  U_NARY_SUMMATION,
+  U_ZERO_WIDTH_SPACE
+} from '../../unicode';
+import RootBlockMixin from '../../services/rootBlockMixin';
+import { Controller } from '../../services/textarea';
+import { EMBEDS } from '../../services/apiClass';
+
 var SVG_SYMBOLS = {
   sqrt: {
     width: '',
@@ -345,7 +367,7 @@ function getCtrlSeqsFromBlock(block: NodeRef): string {
 
 Options.prototype.charsThatBreakOutOfSupSub = '';
 
-class SupSub extends MathCommand {
+export class SupSub extends MathCommand {
   ctrlSeq = '_{...}^{...}';
   sub?: MathBlock;
   sup?: MathBlock;
@@ -613,7 +635,7 @@ function insLeftOfMeUnlessAtEnd(this: MQNode, cursor: Cursor) {
   return undefined;
 }
 
-class SubscriptCommand extends SupSub {
+export class SubscriptCommand extends SupSub {
   supsub = 'sub' as const;
 
   domView = new DOMView(1, (blocks) =>
@@ -702,7 +724,7 @@ LatexCmds.superscript =
       }
     };
 
-class SummationNotation extends MathCommand {
+export class SummationNotation extends MathCommand {
   constructor(ch: string, symbol: string, ariaLabel?: string) {
     super();
 
@@ -1017,7 +1039,7 @@ var LiveFraction =
       }
     });
 
-const AnsBuilder = () =>
+export const AnsBuilder = () =>
   new MQSymbol(
     '\\operatorname{ans}',
     h('span', { class: 'mq-ans' }, [h.text('ans')]),
@@ -1025,7 +1047,7 @@ const AnsBuilder = () =>
   );
 LatexCmds.ans = AnsBuilder;
 
-const PercentOfBuilder = () =>
+export const PercentOfBuilder = () =>
   new MQSymbol(
     '\\%\\operatorname{of}',
     h('span', { class: 'mq-nonSymbola mq-operator-name' }, [h.text('% of ')]),
@@ -1250,7 +1272,7 @@ class DelimsNode extends MathCommand {
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 //   first typed as one-sided bracket with matching "ghost" bracket at
 //   far end of current block, until you type an opposing one
-class Bracket extends DelimsNode {
+export class Bracket extends DelimsNode {
   side: BracketSide;
   sides: {
     [L]: { ch: string; ctrlSeq: string };
@@ -1854,7 +1876,7 @@ LatexCmds.editable = LatexCmds.MathQuillMathField = MathFieldNode; // backcompat
 // Create by calling public API method .dropEmbedded(),
 // or by calling the global public API method .registerEmbed()
 // and rendering LaTeX like \embed{registeredName} (see test).
-class EmbedNode extends MQSymbol {
+export class EmbedNode extends MQSymbol {
   setOptions(options: EmbedOptions) {
     function noop() {
       return '';

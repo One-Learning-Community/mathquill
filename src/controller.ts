@@ -1,3 +1,6 @@
+import { L, pray, R, Direction } from './utils';
+import { KIND_OF_MQ } from './services/apiClass';
+
 type TextareaKeyboardEventListeners = Partial<{
   [K in keyof HTMLElementEventMap]: (event: HTMLElementEventMap[K]) => any;
 }>;
@@ -13,7 +16,7 @@ type HandlerWithoutDirectionFunction = NonNullable<
   HandlerOptions[HandlersWithoutDirection]
 >;
 
-class ControllerBase {
+export class ControllerBase {
   id: number;
   data: ControllerData;
   readonly root: ControllerRoot;

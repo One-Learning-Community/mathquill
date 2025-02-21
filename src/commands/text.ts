@@ -2,13 +2,21 @@
  * Abstract classes of text blocks
  ************************************************/
 
+import { API, IBaseMathQuill, APIClasses } from '../services/apiClass';
+import { MQNode } from '../services/keystroke';
+import { Fragment, LatexCmds, NodeBase } from '../tree';
+import { L, prayDirection, R, Direction, pray } from '../utils';
+import { DOMView, MathBlock, MathCommand, RootMathBlock, VanillaSymbol } from './math';
+import { Controller } from '../services/textarea';
+import { Anticursor, Cursor } from '../cursor';
+
 /**
  * Blocks of plain text, with one or two TextPiece's as children.
  * Represents flat strings of typically serif-font Roman characters, as
  * opposed to hierchical, nested, tree-structured math.
  * Wraps a single HTMLSpanElement.
  */
-class TextBlock extends MQNode {
+export class TextBlock extends MQNode {
   ctrlSeq = '\\text';
   ariaLabel = 'Text';
   replacedText?: string;
@@ -483,7 +491,7 @@ LatexCmds.lowercase = makeTextBlock('\\lowercase', 'Lowercase', 'span', {
   class: 'mq-text-mode'
 });
 
-class RootMathCommand extends MathCommand {
+export class RootMathCommand extends MathCommand {
   cursor: Cursor;
   constructor(cursor: Cursor) {
     super('$');

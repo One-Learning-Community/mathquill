@@ -2,6 +2,12 @@
  * Manage the MathQuill instance's textarea
  * (as owned by the Controller)
  ********************************************/
+import { Options } from './options';
+import { domFrag } from '../domFragment';
+import { noop } from '../utils';
+import { Controller_scrollHoriz } from './scrollHoriz';
+import { MQNode } from './keystroke';
+
 Options.prototype.substituteTextarea = function () {
   return h('textarea', {
     autocapitalize: 'off',
@@ -21,12 +27,12 @@ function generateUUID(): string {
   });
 }
 
-function defaultSubstituteKeyboardEvents(jq: $, controller: Controller) {
+export function defaultSubstituteKeyboardEvents(jq: $, controller: Controller) {
   return saneKeyboardEvents(jq[0] as HTMLTextAreaElement, controller);
 }
 Options.prototype.substituteKeyboardEvents = defaultSubstituteKeyboardEvents;
 
-class Controller extends Controller_scrollHoriz {
+export class Controller extends Controller_scrollHoriz {
   selectFn: (text: string) => void = noop;
 
   previousTabindex: number | undefined;
@@ -198,8 +204,8 @@ class Controller extends Controller_scrollHoriz {
     if (cursor.selection) {
       setTimeout(function () {
         ctrlr.notify('edit'); // deletes selection if present
-        cursor.parent.bubble(function (node) {
-          (node as MQNode).reflow();
+        cursor.parent.bubble(function (node: MQNode) {
+          node.reflow();
           return undefined;
         });
         if (ctrlr.options && ctrlr.options.onCut) {

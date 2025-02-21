@@ -2,10 +2,30 @@
  * Symbols for Basic Mathematics
  ********************************/
 
+import { baseOptionProcessors } from '../../services/baseOptionProcessors';
+import {
+  MQSymbol,
+  BinaryOperator,
+  MathBlock,
+  MathCommand,
+  bindVanillaSymbol,
+  bindBinaryOperator,
+  DOMView, VanillaSymbol
+} from '../math';
+import { Direction, pray, L, R } from '../../utils';
+import { CharCmds, Fragment, isMQNodeClass, LatexCmds } from '../../tree';
+import { AutoDict, Options } from '../../services/options';
+import { AnsBuilder, Bracket, PercentOfBuilder, SubscriptCommand, SummationNotation, SupSub } from './commands';
+import { MQNode } from '../../services/keystroke';
+import { domFrag } from '../../domFragment';
+import { U_NO_BREAK_SPACE } from '../../unicode';
+import { latexMathParser, TempSingleCharNode } from '../../services/latex';
+import { Cursor } from '../../cursor';
+
 const SPACE = '\\ ';
 const DOT = '.';
 
-class DigitGroupingChar extends MQSymbol {
+export class DigitGroupingChar extends MQSymbol {
   finalizeTree(opts: CursorOptions, dir: Direction) {
     this.sharedSiblingMethod(opts, dir);
   }
@@ -216,7 +236,7 @@ class DigitGroupingChar extends MQSymbol {
   }
 }
 
-class Digit extends DigitGroupingChar {
+export class Digit extends DigitGroupingChar {
   constructor(ch: string, mathspeak?: string) {
     super(
       ch,
@@ -350,7 +370,7 @@ baseOptionProcessors.autoCommands = function (cmds: string | undefined) {
       throw '"' + cmd + '" is a built-in operator name';
     }
     dict[cmd] = 1;
-    maxLength = max(maxLength, cmd.length);
+    maxLength = Math.max(maxLength, cmd.length);
   }
   dict._maxLength = maxLength;
   return dict;
@@ -381,7 +401,7 @@ baseOptionProcessors.autoParenthesizedFunctions = function (cmds) {
       throw 'autocommand "' + cmd + '" not minimum length of 2';
     }
     dict[cmd] = 1;
-    maxLength = max(maxLength, cmd.length);
+    maxLength = Math.max(maxLength, cmd.length);
   }
   dict._maxLength = maxLength;
   return dict;
@@ -408,7 +428,7 @@ function letterSequenceEndingAtNode(node: NodeRef, maxLength: number) {
   return str;
 }
 
-class Letter extends Variable {
+export class Letter extends Variable {
   letter: string;
   /**
    * If this is the last letter of an operatorname (`\operatorname{arcsinh}`)
@@ -572,7 +592,7 @@ class Letter extends Variable {
       first && i < str.length;
       i += 1, first = (first as MQNode)[R]
     ) {
-      for (var len = min(autoOpsLength, str.length - i); len > 0; len -= 1) {
+      for (var len = Math.min(autoOpsLength, str.length - i); len > 0; len -= 1) {
         var word = str.slice(i, i + len);
         var last: Letter = undefined!; // TODO - TS complaining that we use last before assigning to it
 
@@ -725,7 +745,7 @@ baseOptionProcessors.autoOperatorNames = function (cmds) {
     if (cmd.indexOf('|') < 0) {
       // normal auto operator
       dict[cmd] = cmd;
-      maxLength = max(maxLength, cmd.length);
+      maxLength = Math.max(maxLength, cmd.length);
     } else {
       // this item has a speech-friendly alternative
       var cmdArray = cmd.split('|');
@@ -736,7 +756,7 @@ baseOptionProcessors.autoOperatorNames = function (cmds) {
         throw '"' + cmd[0] + '" not minimum length of 2';
       }
       dict[cmdArray[0]] = cmdArray[1].replace(/-/g, ' '); // convert dashes to spaces for the sake of speech
-      maxLength = max(maxLength, cmdArray[0].length);
+      maxLength = Math.max(maxLength, cmdArray[0].length);
     }
   }
   dict._maxLength = maxLength;
@@ -848,7 +868,7 @@ LatexCmds.f = class extends Letter {
   italicize(bool: boolean) {
     // Why is this necesssary? Does someone replace the `f` at some
     // point?
-    this.domFrag().eachElement((el) => (el.textContent = 'f'));
+    this.domFrag().eachElement((el: HTMLElement) => (el.textContent = 'f'));
     this.domFrag().toggleClass('mq-f', bool);
     return super.italicize(bool);
   }
@@ -1179,7 +1199,7 @@ LatexCmds['√'] = () => new LatexFragment('\\sqrt{}');
  *   siometimes be interpreted as unary, or
  * - node ends an infix word like "for" specified in `infixOperatorNames`
  */
-function nodeEndsBinaryOperator(node: NodeRef): boolean {
+export function nodeEndsBinaryOperator(node: NodeRef): boolean {
   return (
     node instanceof BinaryOperator ||
     (node instanceof Letter && node.endsCategory == 'infix')
@@ -1188,7 +1208,7 @@ function nodeEndsBinaryOperator(node: NodeRef): boolean {
 
 // Binary operator determination is used in several contexts for PlusMinus nodes and their descendants.
 // For instance, we set the item's class name based on this factor, and also assign different mathspeak values (plus vs positive, negative vs minus).
-function plusMinusIsBinaryOperator(node: NodeRef): boolean {
+export function plusMinusIsBinaryOperator(node: NodeRef): boolean {
   if (!node) return false;
 
   const nodeL = node[L];
@@ -1223,7 +1243,7 @@ function plusMinusIsBinaryOperator(node: NodeRef): boolean {
   return true;
 }
 
-var PlusMinus = class extends BinaryOperator {
+export const PlusMinus = class extends BinaryOperator {
   constructor(ch?: string, html?: ChildNode, mathspeak?: string) {
     super(ch, html, undefined, mathspeak, true);
   }
@@ -1411,7 +1431,7 @@ LatexCmds['≠'] =
   LatexCmds.neq =
     bindBinaryOperator('\\ne ', '&ne;', 'not equal');
 
-class Equality extends BinaryOperator {
+export class Equality extends BinaryOperator {
   constructor() {
     super('=', h.text('='), '=', 'equals');
   }

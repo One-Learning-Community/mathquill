@@ -1,11 +1,20 @@
-class TempSingleCharNode extends MQNode {
+import { Controller_keystroke, MQNode } from './keystroke';
+import { Fragment, LatexCmds } from '../tree';
+import { MathBlock, VanillaSymbol } from '../commands/math';
+import { Digit, Letter, PlusMinus } from '../commands/math/basicSymbols';
+import { baseOptionProcessors } from './baseOptionProcessors';
+import { L, R } from '../utils';
+import { RootMathCommand } from '../commands/text';
+import { domFrag } from '../domFragment';
+
+export class TempSingleCharNode extends MQNode {
   constructor(_char: string) {
     super();
   }
 }
 
 // Parser MathBlock
-var latexMathParser = (function () {
+export const latexMathParser = (function () {
   function commandToBlock(cmd: MQNode | Fragment): MathBlock {
     // can also take in a Fragment
     var block = new MathBlock();
@@ -102,7 +111,7 @@ baseOptionProcessors.maxDepth = function (depth: number | undefined) {
   return typeof depth === 'number' ? depth : undefined;
 };
 
-class Controller_latex extends Controller_keystroke {
+export class Controller_latex extends Controller_keystroke {
   cleanLatex(latex: string) {
     //prune unnecessary spaces
     return latex.replace(/(\\[a-z]+) (?![a-z])/gi, '$1');

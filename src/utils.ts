@@ -3,16 +3,13 @@
 //
 // the contract is that they can be used as object properties
 // and (-L) === R, and (-R) === L.
-type L = -1;
-type R = 1;
-const L: L = -1;
-const R: R = 1;
-type Direction = L | R;
+export type L = -1;
+export type R = 1;
+export const L: L = -1;
+export const R: R = 1;
+export type Direction = L | R;
 
-var min = Math.min;
-var max = Math.max;
-
-function noop() {}
+export function noop() {}
 
 function walkUpAsFarAsPossible(node: NodeRef | undefined) {
   while (node) {
@@ -34,7 +31,7 @@ function walkUpAsFarAsPossible(node: NodeRef | undefined) {
  * with the same name, and only call this function by
  * name.
  */
-function pray(
+export function pray(
   message: string,
   cond?: any,
   optionalContextNodes?: Record<string, NodeRef>
@@ -73,6 +70,6 @@ function pray(
   }
 }
 
-function prayDirection(dir: Direction) {
+export function prayDirection(dir: Direction) {
   pray('a direction was passed', dir === L || dir === R);
 }

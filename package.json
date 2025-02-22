@@ -7,20 +7,36 @@
     "type": "git",
     "url": "https://github.com/mathquill/mathquill.git"
   },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
   "files": [
     "build/mathquill.{css,js,min.js}",
     "build/fonts/Symbola.*",
-    "quickstart.html"
+    "quickstart.html",
+    "dist"
   ],
+  "main": "./dist/mathquill.umd.js",
+  "module": "./dist/mathquill.es.js",
+  "exports": {
+    ".": {
+      "import": "./dist/mathquill.es.js",
+      "require": "./dist/mathquill.umd.js"
+    }
+  },
   "devDependencies": {
     "@types/mocha": ">=5.2.7",
+    "@vituum/vite-plugin-concat": "^1.1.0",
     "husky": ">=9.0",
     "less": ">=4.0",
     "lint-staged": ">=12.3.1",
     "mocha": ">=2.4.1",
     "prettier": "~3.2.0",
     "typescript": "~5.4",
-    "uglify-js": "2.x"
+    "uglify-js": "2.x",
+    "vite": "^6.1.1"
   },
   "lint-staged": {
     "*.{ts,js,css,html}": "prettier --write"

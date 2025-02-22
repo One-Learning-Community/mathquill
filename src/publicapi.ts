@@ -14,12 +14,14 @@ import {
   IEditableFieldClass
 } from './services/apiClass';
 import { Options } from './services/options';
-import { MathBlock } from './commands/math';
-import { LatexCmds, NodeBase } from './tree';
+import { LatexCmds } from './tree';
 import { domFrag } from './domFragment';
 import { Controller, defaultSubstituteKeyboardEvents } from './services/textarea';
 import { EmbedNode } from './commands/math/commands';
-import { MQNode } from './services/keystroke';
+
+import { MQNode } from './services/MQNode';
+import { MathBlock } from './commands/mathElement';
+import { getNodeOfElement, linkElementByBlockNode } from './nodeFunctions';
 
 class Progenote {}
 
@@ -170,7 +172,7 @@ function getInterface(v: number): MathQuill.v3.API | MathQuill.v1.API {
           .appendTo(el)
           .oneElement()
       );
-      NodeBase.linkElementByBlockNode(root.domFrag().oneElement(), root);
+      linkElementByBlockNode(root.domFrag().oneElement(), root);
       this.latex(contents.text());
 
       this.revert = function () {
@@ -400,7 +402,7 @@ function getInterface(v: number): MathQuill.v3.API | MathQuill.v1.API {
         break;
       }
     }
-    var blockNode = NodeBase.getNodeOfElement(blockElement) as MathBlock; // TODO - assumng it's a MathBlock
+    var blockNode = getNodeOfElement(blockElement) as MathBlock; // TODO - assumng it's a MathBlock
     var ctrlr = blockNode && blockNode.controller;
     const APIClass = ctrlr && APIClasses[ctrlr.KIND_OF_MQ];
     return ctrlr && APIClass ? new APIClass(ctrlr) : null;

@@ -6,7 +6,8 @@ import { Options } from './options';
 import { domFrag } from '../domFragment';
 import { noop } from '../utils';
 import { Controller_scrollHoriz } from './scrollHoriz';
-import { MQNode } from './keystroke';
+
+import { MQNode } from './MQNode';
 
 Options.prototype.substituteTextarea = function () {
   return h('textarea', {

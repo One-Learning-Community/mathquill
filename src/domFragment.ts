@@ -1,5 +1,6 @@
 import { pray, L, R, Direction } from './utils';
-import { Ends } from './tree';
+
+import { Ends } from './ends';
 
 /**
  * A `DOMFragment` represents a contiguous span of sibling DOM Nodes,

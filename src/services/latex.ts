@@ -1,11 +1,16 @@
-import { Controller_keystroke, MQNode } from './keystroke';
-import { Fragment, LatexCmds } from '../tree';
-import { MathBlock, VanillaSymbol } from '../commands/math';
-import { Digit, Letter, PlusMinus } from '../commands/math/basicSymbols';
+import { Controller_keystroke } from './keystroke';
+import type { Fragment } from '../tree';
+import { LatexCmds } from '../tree';
+import { PlusMinus } from '../commands/math/basicSymbols';
 import { baseOptionProcessors } from './baseOptionProcessors';
 import { L, R } from '../utils';
 import { RootMathCommand } from '../commands/text';
 import { domFrag } from '../domFragment';
+import { MQNode } from './MQNode';
+import { Digit } from '../commands/math/digit';
+import { Letter } from '../commands/math/letter';
+import { MathBlock } from '../commands/mathElement';
+import { VanillaSymbol } from '../commands/vanillaSymbol';
 
 export class TempSingleCharNode extends MQNode {
   constructor(_char: string) {

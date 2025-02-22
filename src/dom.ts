@@ -1,3 +1,7 @@
+import { linkElementByBlockNode } from './nodeFunctions';
+import { pray } from './utils';
+import type { MathBlock } from './commands/mathElement';
+
 type HTMLTagName =
   | 'span'
   | 'textarea'
@@ -57,7 +61,7 @@ interface HtmlBuilder {
   entityText(s: string): Text;
 }
 
-const h: HtmlBuilder = function h(
+export const h: HtmlBuilder = function h(
   type: HTMLTagName | SVGTagName,
   attributes?: CreateElementAttributes,
   children?: (ChildNode | DocumentFragment)[]
@@ -107,7 +111,7 @@ h.block = (
 
   const out = h(type, attributes, children);
   block.setDOM(out);
-  NodeBase.linkElementByBlockNode(out, block);
+  linkElementByBlockNode(out, block);
   return out;
 };
 
@@ -123,7 +127,7 @@ h.entityText = (s: string) => {
   return val.childNodes[0] as Text;
 };
 
-function closest(el: unknown | null, s: string) {
+export function closest(el: unknown | null, s: string) {
   if (typeof (el as any)?.closest === 'function') {
     return (el as HTMLElement).closest(s);
   }

@@ -1,7 +1,10 @@
 import { Options } from './options';
 import { ControllerBase } from '../controller';
-import { NodeBase } from '../tree';
 import { Controller_latex } from './latex';
+import type { Cursor } from '../cursor';
+import { noop } from '../utils';
+import { getNodeOfElement } from '../nodeFunctions';
+import { closest } from '../dom';
 
 /********************************************************
  * Deals with mouse events for clicking, drag-to-select
@@ -42,8 +45,8 @@ export class Controller_mouse extends Controller_latex {
       '.mq-root-block'
     ) as HTMLElement | null;
 
-    var root = ((rootElement && NodeBase.getNodeOfElement(rootElement)) ||
-      NodeBase.getNodeOfElement(
+    var root = ((rootElement && getNodeOfElement(rootElement)) ||
+      getNodeOfElement(
         this.root.domFrag().oneElement()
       )) as ControllerRoot;
 
@@ -159,7 +162,7 @@ export class Controller_mouse extends Controller_latex {
     // node that mathquill is aware of
     while (targetElm) {
       // try to find the MQ Node associated with the DOM Element
-      node = NodeBase.getNodeOfElement(targetElm);
+      node = getNodeOfElement(targetElm);
       if (node) break;
 
       // must be too deep, traverse up to the parent DOM Element

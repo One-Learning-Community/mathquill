@@ -1,5 +1,5 @@
-import { MathBlock } from '../commands/math';
 import { Controller } from './textarea';
+import { MathBlock } from '../commands/mathElement';
 
 export const EMBEDS: Record<string, (data: EmbedOptionsData) => EmbedOptions> = {};
 export const API: APIClassBuilders = {};

@@ -1,5 +1,5 @@
 import { L, pray, R, Direction } from './utils';
-import { KIND_OF_MQ } from './services/apiClass';
+import type { KIND_OF_MQ } from './services/apiClass';
 
 type TextareaKeyboardEventListeners = Partial<{
   [K in keyof HTMLElementEventMap]: (event: HTMLElementEventMap[K]) => any;

@@ -3,12 +3,17 @@
  ************************************************/
 
 import { API, IBaseMathQuill, APIClasses } from '../services/apiClass';
-import { MQNode } from '../services/keystroke';
-import { Fragment, LatexCmds, NodeBase } from '../tree';
+import { Fragment, LatexCmds } from '../tree';
 import { L, prayDirection, R, Direction, pray } from '../utils';
-import { DOMView, MathBlock, MathCommand, RootMathBlock, VanillaSymbol } from './math';
+import { RootMathBlock } from './math';
 import { Controller } from '../services/textarea';
 import { Anticursor, Cursor } from '../cursor';
+import { MQNode } from '../services/MQNode';
+import { NodeBase } from '../nodeBase';
+import { MathCommand } from './mathCommand';
+import { DOMView } from './DOMView';
+import { MathBlock } from './mathElement';
+import { VanillaSymbol } from './vanillaSymbol';
 
 /**
  * Blocks of plain text, with one or two TextPiece's as children.

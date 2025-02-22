@@ -1,5 +1,6 @@
 import { pray } from '../utils';
-import { APIClasses } from './apiClass';
+import type { APIClasses } from './apiClass';
+import type { Controller } from './textarea';
 
 export type AutoDict = {
   _maxLength?: number;
